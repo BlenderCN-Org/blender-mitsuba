@@ -18,6 +18,7 @@ bl_info = {
 
 import bpy
 from . import camera
+from . import gen_lookat_params
 
 def register():
     bpy.utils.register_module(__name__)
