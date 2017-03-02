@@ -24,11 +24,12 @@ class OP_Gen_cam_lookatsplines(bpy.types.Operator):
         self.cams = list()
         self.tgts = list()
 
-    def setOriginTarget(self, ctx):
+    def init(self, ctx):
         self.target = ctx.active_object
         self.origin = ctx.selected_objects[0]
         if self.origin == self.target:
             self.origin = ctx.selected_objects[1]
+        self.camera = bpy.data.cameras['camera'] if 'camera' in bpy.data.cameras else bpy.data.cameras.new('camera')
 
 
     @classmethod
@@ -37,7 +38,7 @@ class OP_Gen_cam_lookatsplines(bpy.types.Operator):
 
 
     def invoke(self, ctx, event):
-        self.setOriginTarget(ctx)
+        self.init(ctx)
         self.add_cam(ctx.scene, self.cam_number)
 
         ctx.window_manager.modal_handler_add(self)
@@ -72,7 +73,7 @@ class OP_Gen_cam_lookatsplines(bpy.types.Operator):
 
 
     def execute(self, ctx):
-        self.setOriginTarget(ctx)
+        self.init(ctx)
         self.add_cam(ctx.scene, self.cam_number)
 
         return {'FINISHED'}
@@ -80,8 +81,7 @@ class OP_Gen_cam_lookatsplines(bpy.types.Operator):
 
     def add_cam(self, scene, number=1):
         for i in range(number):
-            camera =  self.cams[0].data if len(self.cams) else bpy.data.cameras.new('camera')
-            o,t = create_rigcam(camera, self.origin, self.target)
+            o,t = create_rigcam(self.camera, self.origin, self.target)
             self.cams.append(o)
             self.tgts.append(t)
 
