@@ -66,29 +66,44 @@ class OP_Gen_lookat_params(bpy.types.Operator):
     bl_label = "Export cameras lookat params"
     bl_description = "Generate lookat parameters from cameras"
 
-    export_group = bpy.props.StringProperty(name="GroupName", default="cam_to_export")
-    export_file  = bpy.props.StringProperty(name="Lookat Filepath", default="//cameras.lookat", subtype='FILE_PATH')
-
-    def __init__(self):
-        self.grp = bpy.data.groups[0] if bpy.data.groups[0] else None
-
     @classmethod
     def poll(self, ctx):
         return True
 
     def execute(self, ctx):
-        if self.export_group in bpy.data.groups:
-            print('save params at',bpy.path.abspath(self.export_file))
-            f = open(bpy.path.abspath(self.export_file),'w')
-            for cam in bpy.data.groups[self.export_group].objects:
+        cfg = ctx.scene.gen_lookat_params
+        if cfg.export_group in bpy.data.groups:
+            #rename group element before exporting
+            if cfg.rename :
+                for i,cam in enumerate(bpy.data.groups[cfg.export_group].objects):
+                    cam.name = cfg.template.format(i)
+
+            print('save params at',bpy.path.abspath(cfg.export_file))
+            f = open(bpy.path.abspath(cfg.export_file),'w')
+            for cam in bpy.data.groups[cfg.export_group].objects:
                 o,t,u = lookAt(cam.matrix_world)
                 name = cam.name
                 f.write( '{} -D origin={},{},{} -D target={},{},{} -D up={},{},{}\n'.format( name,o[0],o[2],-o[1],t[0],t[2],-t[1],u[0],u[2],-u[1]) )
             f.close()
         else:
-            print(self.export_group,": group not found")
+            print(cfg.export_group,": group not found")
 
         return {'FINISHED'}
+
+class gen_lookat_param_Settings( bpy.types.PropertyGroup ):
+    export_group = bpy.props.StringProperty(name="Export group",
+                                            default="cam_to_export")
+
+    export_file  = bpy.props.StringProperty(name="Lookat Filepath",
+                                            default="//cameras.lookat",
+                                            subtype='FILE_PATH')
+
+    template = bpy.props.StringProperty(name="Name template",
+                                        description="Name template using the python str.format formating",
+                                        default="Cam{:03d}")
+
+    rename = bpy.props.BoolProperty(name="Renaming",
+                                    default=True)
 
 
 class LookatParamPanel(bpy.types.Panel):
@@ -98,9 +113,19 @@ class LookatParamPanel(bpy.types.Panel):
     bl_context = 'scene'
 
     def draw(self, ctx):
+        cfg = ctx.scene.gen_lookat_params
         layout = self.layout
-        row = layout.row()
-        op_prop = row.operator(OP_Gen_lookat_params.bl_idname)
+        col = layout.column()
+        col.prop_search(cfg, "export_group", bpy.data, "groups")
+        col.prop(cfg, "export_file")
+
+        splt = col.split(percentage=0.2)
+        col.prop(cfg,"rename")
+        sub = col.row()
+        sub.prop(cfg, "template")
+        sub.enabled = cfg.rename
+
+        op_prop = col.operator(OP_Gen_lookat_params.bl_idname)
 
 
 
