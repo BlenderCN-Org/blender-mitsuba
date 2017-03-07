@@ -148,3 +148,9 @@ def lock_rotpos(obj):
     lock_position(obj)
     lock_position(obj)
 
+
+def register():
+    bpy.utils.register_class(OP_Gen_cam_lookatsplines)
+
+def unregister():
+    bpy.utils.unregister_class(OP_Gen_cam_lookatsplines)

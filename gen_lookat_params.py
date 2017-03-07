@@ -103,3 +103,18 @@ class LookatParamPanel(bpy.types.Panel):
         op_prop = row.operator(OP_Gen_lookat_params.bl_idname)
 
 
+
+def register():
+    bpy.utils.register_class(gen_lookat_param_Settings)
+    bpy.utils.register_class(LookatParamPanel)
+    bpy.utils.register_class(OP_Gen_lookat_params)
+
+    bpy.types.Scene.gen_lookat_params=bpy.props.PointerProperty(type=gen_lookat_param_Settings)
+
+def unregister():
+    bpy.utils.register_class(gen_lookat_param_Settings)
+    bpy.utils.register_class(LookatParamPanel)
+    bpy.utils.register_class(OP_Gen_lookat_params)
+
+    del bpy.types.Scene.gen_lookat_params
+

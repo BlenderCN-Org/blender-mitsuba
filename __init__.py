@@ -21,10 +21,12 @@ from . import camera
 from . import gen_lookat_params
 
 def register():
-    bpy.utils.register_module(__name__)
+    gen_lookat_params.register()
+    camera.register()
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    gen_lookat_params.unregister()
+    camera.unregister()
 
 if __name__ == "__main__":
     register()
