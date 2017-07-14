@@ -19,6 +19,7 @@
 
 import bpy
 import mathutils
+from math import degrees
 
 def get_worldscale( as_scalematrix=True):
     ws = 1
@@ -83,7 +84,9 @@ class OP_Gen_lookat_params(bpy.types.Operator):
             for cam in bpy.data.groups[cfg.export_group].objects:
                 o,t,u = lookAt(cam.matrix_world)
                 name = cam.name
-                f.write( '{} -D origin={},{},{} -D target={},{},{} -D up={},{},{}\n'.format( name,o[0],o[2],-o[1],t[0],t[2],-t[1],u[0],u[2],-u[1]) )
+                f.write( '{} -D origin={},{},{} -D target={},{},{} -D up={},{},{} -D fov={} -D clip={},{}\n'.format( name, 
+                    o[0],o[2],-o[1],t[0],t[2],-t[1],u[0],u[2],-u[1],
+                    degrees(cam.data.angle_x), cam.data.clip_start, cam.data.clip_end ) )
             f.close()
         else:
             print(cfg.export_group,": group not found")
